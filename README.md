@@ -2,6 +2,7 @@
 
 Pseudocode for Tictactoe
 
+```ruby
 def check win condition
 	check if matches horizontally
 	vertically
@@ -17,3 +18,4 @@ end
 
 declare result, winner or draw
 play again? yes or no
+```ruby

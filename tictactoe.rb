@@ -1,24 +1,4 @@
-#def check win condition
-# 	check if matches horizontally
-# 	vertically
-# 	diagonally
-# end
-#
-# while there is no winner or cells not fully populated
-#   display the cell
-# 	player (one or two) selects a cell
-# 	cell is populated with x or o
-# 	check win condition
-# 	switch to next player
-# end
-#
-# declare result, winner or draw
-# play again? yes or no
-
-module State
-  PLAY = 1
-  GAME_OVER = 2
-end
+require "colorize"
 
 class Player
   attr_accessor :number, :letter
@@ -31,11 +11,9 @@ class Player
 end
 
 class Game
-  attr_accessor :state, :player, :winner
+  attr_accessor :player, :winner
 
   def initialize()
-    @state = State::PLAY
-
     @player_one = Player.new(1, 'X')
     @player_two = Player.new(2, 'O')
 
@@ -43,15 +21,15 @@ class Game
 
     @cells = Array.new(9) { | i | (i + 1).to_s }
     @winner = nil 
-
   end
 
   def start()
     until cells_are_full? or has_winner? do
-      draw()
+      system("clear") || system("cls") # clear console screen
+      draw_board()
       get_chosen_cell()
       check_for_winner()
-      swap_player()
+      swap_player() unless has_winner?
     end
     
     if cells_are_full?
@@ -63,22 +41,24 @@ class Game
     end
 
     display_cells()
-    @state = State::GAME_OVER
   end
 
   def get_chosen_cell()
     #TODO: input validation
     #accept only 1 to 9
     #accept only unpopulated cells
-    puts "Choose a cell from 1-9 and only the unpopulated ones:"
+    #accept only one character
+    puts " " #newline
+    puts "Choose a cell from 1-9 and only the unpopulated ones:".colorize(:blue)
     value = gets.chomp
     puts "You entered #{value}"
     @cells[value.to_i - 1] = @player.letter
 
   end
 
-  def draw()
-    puts "Current player is #{@player.number}"
+  def draw_board()
+    puts "Current player is #{@player.number}".colorize(:green)
+    puts " " #newline
     display_cells()
   end
 
@@ -99,11 +79,11 @@ class Game
 
   def check_for_winner()
     cells_to_eval = [[0,1,2], [3,4,5], [6,7,8],
-                   [0,3,6], [1,4,7], [2,5,8],
-                   [0,4,8], [2,4,6]]
+                     [0,3,6], [1,4,7], [2,5,8],
+                     [0,4,8], [2,4,6]]
 
     cells_to_eval.each do | c |
-      matching_cells, value = check_for_same_value(c[0], c[1], c[2])
+      matching_cells, value = check_matching_values(c[0], c[1], c[2])
       if matching_cells 
         p "cells are the matching for #{c}"
         value == @player_one.letter ? @winner = @player_one : @winner = @player_two
@@ -112,7 +92,7 @@ class Game
 
   end
 
-  def check_for_same_value(idx1, idx2, idx3)
+  def check_matching_values(idx1, idx2, idx3)
     cells = [ @cells[idx1], @cells[idx2], @cells[idx3] ] 
     same_value = false
     value = nil
